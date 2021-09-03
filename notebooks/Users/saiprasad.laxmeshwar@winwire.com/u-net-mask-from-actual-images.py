@@ -29,7 +29,31 @@ import os
 
 # COMMAND ----------
 
-path = '../input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/'
+# Importing the necessary libraries
+import pandas as pd
+from IPython.core.display import HTML
+
+# COMMAND ----------
+
+#conecting to adls
+spark.conf.set(
+  "fs.azure.account.key.elancoccistorage.dfs.core.windows.net",
+  "HQcink7eOaIQPLAufaPS+XepbGi2yRbR9s9XBQolhSqxcSqZibFMSFNOvTCr8ChppCIDk9MU7raCt8xmJnJ/fQ=="
+)
+
+# COMMAND ----------
+
+df = spark.read.format("image").load("abfss://elancoccicontainer@elancoccistorage.dfs.core.windows.net/Source/")
+
+display(df)
+
+# COMMAND ----------
+
+path = df.toPandas()
+
+# COMMAND ----------
+
+#path = '../input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/'
 
 # COMMAND ----------
 
