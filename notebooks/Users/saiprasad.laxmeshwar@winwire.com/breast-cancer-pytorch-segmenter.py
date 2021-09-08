@@ -64,8 +64,8 @@ def load_dir(dir):
 
 # COMMAND ----------
 
-path = Path.cwd().parent
-data_path = path / 'input' / 'breast-ultrasound-images-dataset' / 'Dataset_BUSI_with_GT'
+from os import listdir
+data_path = '/dbfs/FileStore/tables/Dataset_BUSI_with_GT/'
 images, masks = load_dir(data_path)
 print(f"Images shape: {images.shape}",
       f"Masks shape: {masks.shape}\n")
@@ -325,7 +325,7 @@ criterion = DiceLoss()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Trainning
+# MAGIC ## Training
 
 # COMMAND ----------
 
@@ -435,3 +435,6 @@ for i in range(4):
     axis[i, 2].set_title("pred")
 
 plt.show()
+
+# COMMAND ----------
+
