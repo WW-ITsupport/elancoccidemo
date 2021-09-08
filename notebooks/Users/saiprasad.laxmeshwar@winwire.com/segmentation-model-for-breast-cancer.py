@@ -8,6 +8,29 @@
 
 # COMMAND ----------
 
+# MAGIC %fs ls abfss://elancoccicontainer@elancoccistorage.dfs.core.windows.net
+
+# COMMAND ----------
+
+
+
+
+# COMMAND ----------
+
+configs = {"fs.azure.account.auth.type": "OAuth",
+          "fs.azure.account.oauth.provider.type": "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider",
+          "fs.azure.account.oauth2.client.id": "6edde992-5ac6-4df3-ad17-fc39ef7d9a0c",
+          "fs.azure.account.oauth2.client.secret": dbutils.secrets.get(scope="ADLS",key="adls"),
+          "fs.azure.account.oauth2.client.endpoint": "https://login.microsoftonline.com/bdcfaa46-3f69-4dfd-b3f7-c582bdfbb820/oauth2/token"}
+
+# Optionally, you can add <directory-name> to the source URI of your mount point.
+dbutils.fs.mount(
+  source = "abfss://elancoccicontainer@elancoccistorage.dfs.core.windows.net/",
+  mount_point = "/mnt/ADLS",
+  extra_configs = configs)
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC # Dependencies
 
@@ -20,7 +43,25 @@ import pandas as pd
 import re
 import matplotlib.pyplot as plt
 import cv2
-import tensorflow as tf
+#import tensorflow as tf
+
+# COMMAND ----------
+
+#conecting to adls
+spark.conf.set(
+  "fs.azure.account.key.elancoccistorage.dfs.core.windows.net",
+  "HQcink7eOaIQPLAufaPS+XepbGi2yRbR9s9XBQolhSqxcSqZibFMSFNOvTCr8ChppCIDk9MU7raCt8xmJnJ/fQ=="
+)
+
+# COMMAND ----------
+
+#check directory list
+display ( dbutils.fs.ls("abfss://elancoccicontainer@elancoccistorage.dfs.core.windows.net/Source/normal/") )
+
+# COMMAND ----------
+
+df = dbutils.fs.ls("mnt/ADLS/Source/normal/")
+df
 
 # COMMAND ----------
 
@@ -68,10 +109,24 @@ def LoadData( frameObj = None, imgPath = None, maskPath = None, shape = 256):
 
 # COMMAND ----------
 
+normalimagesdf = spark.read.format("image").load("abfss://elancoccicontainer@elancoccistorage.dfs.core.windows.net/Source/benign/")
+display(normalimagesdf )
+
+# COMMAND ----------
+
+path = 'dbfs:/FileStore/tables/Dataset_BUSI_with_GT'
+dir_list = [os.path.join(path,i) for i in os.listdir(path)]
+size_dict = {}
+for i,value in enumerate(dir_list):
+    size_dict[os.listdir(path)[i]] = len(os.listdir(value))
+size_dict 
+
+# COMMAND ----------
+
 # loading benign samples
 
-framObjTrain = LoadData( framObjTrain, imgPath = '/kaggle/input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/benign'
-                        , maskPath = '/kaggle/input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/benign'
+framObjTrain = LoadData( framObjTrain, imgPath = "abfss://elancoccicontainer@elancoccistorage.dfs.core.windows.net/Source/normal"
+                        , maskPath = "abfss://elancoccicontainer@elancoccistorage.dfs.core.windows.net/Source/normal"
                          , shape = 256)
 
 # COMMAND ----------
